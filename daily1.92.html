@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>七日世界 - 終端行動控制台 V5.4.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- 這裡完全保留妳的原始樣式 --- */
+        :root {
+            --bg-color: #0a1122;
+            --card-bg: #11192e;
+            --accent-color: #34ead6;
+            --text-color: #f1f5f9;
+            --header-color: #94a3b8;
+            --sub-accent: #60a5fa;
+            --tab-inactive: #1a253a;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(52, 234, 214, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            letter-spacing: 6px;
+            text-shadow: 0 0 15px rgba(52, 234, 214, 0.5);
+            font-weight: 700;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--tab-inactive);
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            padding: 14px 24px;
+            background: transparent;
+            border: none;
+            color: var(--header-color);
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            background: rgba(52, 234, 214, 0.05);
+        }
+
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .summary-board {
+            background: rgba(52, 234, 214, 0.05);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px dashed var(--accent-color);
+        }
+
+        .group-title {
+            font-size: 1.3rem;
+            color: var(--accent-color);
+            margin: 25px 0 15px 0;
+            font-weight: bold;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+        }
+
+        .sub-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+            padding: 5px 0 20px 15px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .todo-item:hover { background: rgba(52, 234, 214, 0.06); border-color: rgba(52, 234, 214, 0.3); }
+
+        input[type="checkbox"] { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--accent-color); }
+        .completed { opacity: 0.3; text-decoration: line-through; background: rgba(0, 0, 0, 0.2) !important; }
+
+        .footer-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .reset-btn {
+            padding: 10px 25px;
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .reset-btn:hover { background: var(--danger); color: white; }
+
+        select, .dev-input {
+            height: 45px;
+            font-size: 1rem;
+            background: #1a253a;
+            border: 1px solid var(--accent-color);
+            color: white;
+            border-radius: 6px;
+            padding: 0 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #dev-select { height: 150px !important; }
+
+        .log-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border-left: 5px solid var(--sub-accent);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .log-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .log-tag {
+            background: rgba(52, 234, 214, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .cd-warning-panel {
+            font-size: 0.85rem;
+            color: var(--warning);
+            margin-top: 10px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .camp-counter {
+            font-size: 0.8rem;
+            text-align: right;
+            margin-bottom: 5px;
+            color: var(--header-color);
+        }
+        .camp-counter b { color: var(--accent-color); }
+
+        /* 新增：日誌表格樣式 */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            color: var(--text-color);
+        }
+        .log-table th {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        .log-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .log-table tr:hover { background: rgba(255,255,255,0.03); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Terminal Console</h1>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'daily')">每日/周常</button>
+        <button class="tab-btn" onclick="openTab(event, 'resources')">大型資源點</button>
+        <button class="tab-btn" onclick="openTab(event, 'furniture')">家具工坊</button>
+        <button class="tab-btn" onclick="openTab(event, 'deviants')">異常物一覽</button>
+    </div>
+
+    <div id="daily" class="tab-content active">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <div class="group-title">每日上線</div>
+                <div class="sub-options-grid" style="grid-template-columns: 1fr;">
+                    <label class="todo-item"><input type="checkbox"> 整理背包 / 領地儲存</label>
+                    <label class="todo-item"><input type="checkbox"> 餵食動物 / 植物澆水</label>
+                    <label class="todo-item"><input type="checkbox"> 3次公共事件 (拿控制器)</label>
+                </div>
+            </div>
+            <div>
+                <div class="group-title">重要周常</div>
+                <div class="sub-options-grid" style="grid-template-columns: 1fr;">
+                    <label class="todo-item" id="purify-item">
+                        <input type="checkbox" id="purify-checkbox"> 
+                        領地淨化 (每週 40/40)
+                        <span id="purify-time" style="font-size: 0.7rem; color: var(--accent-color); margin-left: auto; opacity: 0.8;"></span>
+                    </label>
+                    <label class="todo-item"><input type="checkbox"> 營地委託任務 (每週 5/5)</label>
+                    <label class="todo-item"><input type="checkbox"> 三菱子幣物資兌換</label>
+                    <label class="todo-item"><input type="checkbox"> 戰爭工坊控制器領取</label>
+                    <label class="todo-item"><input type="checkbox"> 根源傳送門檢查</label>
+                    <label class="todo-item"><input type="checkbox"> 商人電池兌換 (賣鹽/汽水)</label>
+                </div>              
+            </div>
+        </div>
+
+        <div style="width: 100%; margin-top: 20px;">
+            <div class="group-title">營地收容登記</div>
+            <div class="summary-board" style="padding: 20px;">
+                <div id="reg-area">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; margin-bottom:8px; color:var(--accent-color);">🔍 1. 搜尋異常物名稱</label>
+                        <input type="text" id="dev-search" class="dev-input" placeholder="輸入關鍵字...">
+                        <select id="dev-select" style="margin-top:5px;" size="6"></select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div><label style="display:block; font-size:0.8rem; margin-bottom:5px;">品質</label><select id="input-quality"><option>普通</option><option>異色</option></select></div>
+                        <div><label style="display:block; font-size:0.8rem; margin-bottom:5px;">類型</label><select id="input-type"><option>領地</option><option>造物</option><option>戰鬥</option></select></div>
+                        <div><label style="display:block; font-size:0.8rem; margin-bottom:5px;">異能評級</label><select id="input-power"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+                        <div><label style="display:block; font-size:0.8rem; margin-bottom:5px;">活力評級</label><select id="input-active"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+                    </div>
+
+                    <div id="camp-select-wrapper" style="margin-bottom: 15px;">
+                        <label style="display:block; font-size:0.8rem; margin-bottom:5px;">收容地點</label>
+                        <select id="input-location"></select>
+                    </div>
+                </div>
+
+                <div id="camp-counter" class="camp-counter"></div>
+                
+                <button id="save-btn" onclick="saveDevantLog()" style="width:100%; height:50px; background:var(--accent-color); color:#0a1122; border:none; border-radius:8px; font-size:1.1rem; font-weight:bold; cursor:pointer;">
+                    ➕ 保存本次收容紀錄
+                </button>
+
+                <div id="cd-status" class="cd-warning-panel"></div>
+            </div>
+
+            <div class="group-title">📋 收容日誌概覽</div>
+            <div class="summary-board" style="padding: 0; overflow: hidden;">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>時間</th>
+                            <th>名稱</th>
+                            <th>地點</th>
+                            <th>異/活</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body">
+                        </tbody>
+                </table>
+            </div>
+            
+            <div class="group-title">詳細紀錄卡片</div>
+            <div id="log-list"></div>
+        </div>
+    </div>
+
+    <div id="resources" class="tab-content">
+        <div class="group-title">地圖掃蕩清單</div>
+        <div class="sub-options-grid">
+            <label class="todo-item"><input type="checkbox"> 岱頓濕地各據點</label>
+        </div>
+    </div>
+
+    <div id="furniture" class="tab-content">
+        <div class="group-title">家具工坊</div>
+        <div id="total-materials" class="summary-board">
+             ✨ 星塵: <b id="total-starchrom">0</b> | 🛠️ 鋼錠: <b id="total-steel">0</b>
+        </div>
+    </div>
+
+    <div id="deviants" class="tab-content">
+        <div class="group-title">異常物一覽</div>
+    </div>
+
+    <div class="footer-tools">
+        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.4.0 / 倒計時與表格整合版</div>
+        <button class="reset-btn" onclick="resetList()">全部重置</button>
+    </div>
+</div>
+
+<script>
+    const CAMPS = ["旅人營地", "邁爾集市", "深草旅店", "穢水營地", "黑原鎮"];
+    const allNames = ["遠歸之蝶","遠歸之蝶-浮光藍","遠歸之蝶-星月夜","遠歸之蝶-故紙","迪斯可球","迪斯可球-次聲幻象","極寒水母","極寒水母-逆軌星臨","極寒水母-輝光異種","發條青蛙","電鰻","電鰻-次聲幻象","電鰻-月之預兆","電鰻-金色閃電","氣球狗","氣球狗-次聲幻象","氣球狗-金色閃電","活性凝膠","活性凝膠-次聲幻象","活性凝膠-春薔薇","活性凝膠-海藍星","活性凝膠-奶糖","活性凝膠-月之預兆","榮枯種子","捕夢網","低語孤狼","低語孤狼-爆裂熔火","低語孤狼-遠星遺淚","低語孤狼-月之預兆","低語孤狼-輝光異種","空間魔方","空間魔方-次聲幻象","空間魔方-白崖殘岩","乖乖兔","乖乖兔-次聲幻象","乖乖兔-愛麗絲","乖乖兔-叛逆黑","乖乖兔-水瓶座","乖乖兔-饕餮兔","熊醫生","熊醫生-次聲幻象","熊醫生:聖誕精靈","熊醫生-異異異變共棲","蜂團團","蜂團團-南瓜燈","蜂團團-燈花有餘","青龍","青龍-狂野","青龍-聖誕精靈","青龍-藍色音浪","工號37","工號37-次聲幻象","工號37-原型機","工號37-夢域","薑餅屋","薑餅屋-次聲幻象","一碗美味","一碗美味-次聲幻象","核子打火機","核子打火機-次聲幻象","凝視的黑貓","凝視的黑貓-法老","凝視的黑貓-逆軌星臨","胡桃夾子","胡桃夾子-次聲幻象","胡桃夾子-錯位童話","胡桃夾子-木黃","胡桃夾子-正紫","胡桃夾子-海藍","胡桃夾子-錫兵","胡桃夾子-麗紫","胡桃夾子-雅紫","胡桃夾子-糖格衛兵","胡桃夾子-白銀紳士","胡桃夾子-交錯光影","胡桃夾子-黃金年代","胡桃夾子-海軍上將","胡桃夾子-耶誕節","胡桃夾子-鑽石伯爵","胡桃夾子-銅綠","胡桃夾子-棗褐","胡桃夾子-碧湖","胡桃夾子-綠野","木工河狸","木工河狸-聖誕精靈","元素小子","元素小子-純金","元素小子-梭彩","元素小子-綠寶石","元素小子-發財骰","元素小子-一方通行","紅龍","紅龍-混沌","紅龍-月之預兆","蝶之夢","蝶之夢-異異異變共棲","空之子","空之子-輝光","空之子-爆裂熔火","空之子-極寒之觸","空之子-月之預兆","聯合體","願望先生","願望先生-混沌","願望先生-青龍鬥士","惡臭球根","惡臭球根-紫衣","雪景球","雪景球-次聲幻象","雪景球-異變共棲","龐然大菇","龐然大菇-大加倍","龐然大菇-一見青","龐然大菇-幽蕈","龐然大菇-異變共棲","皆斬","皆斬-月之預兆","雨人","雨人-童趣","雨人-童心","雨人-光雨","雨人-異變共棲","門扉","量子蝸牛","量子蝸牛-月之預兆","量子蝸牛-金色閃電","派對猴","派對猴-次聲幻象","上界之卵","上界之卵-異變共棲","巫毒娃娃","巫毒娃娃-絨毛咒物","巫毒娃娃-逆軌星臨","炎之精","炎之精-王子","炎之精-金蟾","破碎少女","破碎少女-巡遊魔女","迷你奇點","迷你奇點-爆裂熔火","迷你奇點-逆軌星臨","混沌-迷你奇點","異維大貓","異維大貓-大喜大利","異維大貓-大橘為重","異維大貓-月亮鑽石","異維大貓-渾沌","球狀閃電","迷你黃衣","迷你黃衣-食星異魔","迷你黃衣-逆軌星臨","小紙人","小紙人-次聲幻象","小紙人-魔女愛物","奪命兔","匠師之手","焦油布丁","焦油布丁-輻輝","焦油布丁-佳釀","魚航員","魚航員-常綠","快照","快照-次聲幻象","快照-愚者之憶","快照-月之預兆","永恆烈陽","永恆列陽-次聲幻象","永恆烈陽-邪陽","永恆烈陽-逆軌星臨","冬靈","冬靈-返春","冬靈-渾沌","冬靈-月之預兆","冰之瓶","守夜燈","願望箱","願望箱-次聲幻象","願望箱-夢域","鯨狗","喚生靈","狐主任","電螈","黑醫","搗蛋貓","桃旋鼬","疾旋鼬","狼犬","杜賓","拉布拉多","勇士喬治"];
+
+    let cdInterval = null;
+
+    function getNextResetTime(baseTime) {
+        let resetTime = new Date(baseTime);
+        resetTime.setHours(8, 0, 0, 0);
+        if (baseTime >= resetTime) {
+            resetTime.setDate(resetTime.getDate() + 1);
+        }
+        return resetTime;
+    }
+
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+        tablinks = document.getElementsByClassName("tab-btn");
+        for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    function updateCampSelect() {
+        const regArea = document.getElementById('reg-area');
+        const campSelect = document.getElementById('input-location');
+        const saveBtn = document.getElementById('save-btn');
+        const cdStatus = document.getElementById('cd-status');
+        const campCounter = document.getElementById('camp-counter');
+
+        if (cdInterval) clearInterval(cdInterval);
+
+        function refresh() {
+            const cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+            const now = new Date();
+            let activeCDsInfo = [];
+            let availableCount = 0;
+
+            CAMPS.forEach(camp => {
+                if (cdTimestamps[camp]) {
+                    const resetTime = getNextResetTime(new Date(cdTimestamps[camp]));
+                    const diff = resetTime - now;
+
+                    if (diff > 0) {
+                        const h = Math.floor(diff / 3600000);
+                        const m = Math.floor((diff % 3600000) / 60000);
+                        const s = Math.floor((diff % 60000) / 1000);
+                        activeCDsInfo.push(`<span>⏳ ${camp} (${h}h ${m}m ${s}s)</span>`);
+                    } else {
+                        availableCount++;
+                    }
+                } else {
+                    availableCount++;
+                }
+            });
+
+            cdStatus.innerHTML = activeCDsInfo.join('');
+
+            if (availableCount === 0) {
+                if(regArea) regArea.style.display = "none";
+                saveBtn.disabled = true;
+                saveBtn.textContent = "今日已達上限 (明日08:00重置)";
+                saveBtn.style.background = "#4b5563"; 
+            } else {
+                if(regArea) regArea.style.display = "block";
+                saveBtn.disabled = false;
+                saveBtn.textContent = "➕ 保存本次收容紀錄";
+                saveBtn.style.background = "var(--accent-color)";
+            }
+
+            if(campCounter) campCounter.innerHTML = `目前剩餘：<b>${availableCount} / ${CAMPS.length}</b> 個營地可登記`;
+        }
+
+        refresh();
+        cdInterval = setInterval(refresh, 1000);
+
+        // 初始化下拉選單
+        const cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+        const now = new Date();
+        campSelect.innerHTML = '<option value="" disabled selected>選擇收容地點...</option>';
+        CAMPS.forEach(camp => {
+            const isCD = cdTimestamps[camp] && (now < getNextResetTime(new Date(cdTimestamps[camp])));
+            if (!isCD) {
+                const option = document.createElement('option');
+                option.value = camp;
+                option.textContent = camp;
+                campSelect.appendChild(option);
+            }
+        });
+    }
+
+    function saveDevantLog() {
+        const devSelect = document.getElementById('dev-select');
+        const campSelect = document.getElementById('input-location');
+        const name = devSelect.value;
+        const loc = campSelect.value;
+        
+        if(!name) { alert('請先選擇異常物！'); return; }
+        if(!loc) { alert('請選擇收容地點！'); return; }
+
+        const now = new Date();
+        const log = {
+            name: name,
+            quality: document.getElementById('input-quality').value,
+            type: document.getElementById('input-type').value,
+            power: document.getElementById('input-power').value,
+            active: document.getElementById('input-active').value,
+            loc: loc,
+            time: now.toLocaleString('zh-TW', {hour12:false})
+        };
+
+        let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        logs.unshift(log);
+        localStorage.setItem('camp-logs', JSON.stringify(logs));
+
+        let campData = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+        campData[loc] = now.toISOString();
+        localStorage.setItem('camp-cd-timestamps', JSON.stringify(campData));
+
+        renderLogs();
+        updateCampSelect();
+        alert(`${loc} 登記成功！`);
+    }
+
+    function renderLogs() {
+        const container = document.getElementById('log-list');
+        const tableBody = document.getElementById('log-table-body');
+        const logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+
+        // 渲染表格 (整合概覽)
+        tableBody.innerHTML = logs.map(l => `
+            <tr>
+                <td style="color:var(--header-color); font-size:0.75rem;">${l.time.split(' ')[1]}</td>
+                <td style="font-weight:bold;">${l.name}</td>
+                <td style="color:var(--accent-color);">${l.loc}</td>
+                <td>${l.power}/${l.active}</td>
+            </tr>
+        `).join('');
+
+        // 渲染卡片 (詳細資訊與刪除功能)
+        container.innerHTML = logs.map((l, index) => `
+            <div class="log-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
+                    <span style="font-size:1.1rem; font-weight:bold; color:var(--accent-color);">${l.name}</span>
+                    <span style="font-size:0.75rem; color:var(--header-color);">${l.time}</span>
+                </div>
+                <div class="log-grid">
+                    <span class="log-tag">✨ ${l.quality}</span>
+                    <span class="log-tag">⚔️ ${l.type}</span>
+                    <span class="log-tag">🔋 異能: ${l.power}</span>
+                    <span class="log-tag">🌀 活力: ${l.active}</span>
+                    <span class="log-tag" style="grid-column: span 2;">📍 地點: ${l.loc}</span>
+                </div>
+                <div style="text-align:right; margin-top:10px;">
+                    <button onclick="deleteLog(${index})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem;">[ 移除此紀錄 ]</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function deleteLog(index) {
+        if(!confirm("確定要刪除這條紀錄嗎？")) return;
+        let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        logs.splice(index, 1);
+        localStorage.setItem('camp-logs', JSON.stringify(logs));
+        renderLogs();
+        updateCampSelect();
+    }
+
+    function initDevSelect() {
+        const select = document.getElementById('dev-select');
+        const search = document.getElementById('dev-search');
+        function filter(term) {
+            select.innerHTML = '';
+            allNames.filter(n => n.includes(term)).forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n; opt.textContent = n;
+                select.appendChild(opt);
+            });
+        }
+        search.addEventListener('input', (e) => filter(e.target.value));
+        filter('');
+    }
+
+    function resetList() {
+        if(confirm("確定重置所有核取方塊嗎？")) {
+            document.querySelectorAll('input[type="checkbox"]').forEach(box => {
+                box.checked = false;
+                box.parentElement.classList.remove('completed');
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initDevSelect();
+        renderLogs();
+        updateCampSelect();
+    });
+</script>
+</body>
+</html>
