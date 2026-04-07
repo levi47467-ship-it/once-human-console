@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七日世界 - 終端行動控制台 V5.4.0</title>
+    <title>七日世界 - 終端行動控制台 V5.4.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 這裡完全保留妳的原始樣式 --- */
         :root {
             --bg-color: #0a1122;
             --card-bg: #11192e;
@@ -212,7 +211,6 @@
         }
         .camp-counter b { color: var(--accent-color); }
 
-        /* 新增：日誌表格樣式 */
         .log-table {
             width: 100%;
             border-collapse: collapse;
@@ -261,7 +259,6 @@
                     <label class="todo-item" id="purify-item">
                         <input type="checkbox" id="purify-checkbox"> 
                         領地淨化 (每週 40/40)
-                        <span id="purify-time" style="font-size: 0.7rem; color: var(--accent-color); margin-left: auto; opacity: 0.8;"></span>
                     </label>
                     <label class="todo-item"><input type="checkbox"> 營地委託任務 (每週 5/5)</label>
                     <label class="todo-item"><input type="checkbox"> 三菱子幣物資兌換</label>
@@ -315,8 +312,7 @@
                             <th>異/活</th>
                         </tr>
                     </thead>
-                    <tbody id="log-table-body">
-                        </tbody>
+                    <tbody id="log-table-body"></tbody>
                 </table>
             </div>
             
@@ -335,7 +331,7 @@
     <div id="furniture" class="tab-content">
         <div class="group-title">家具工坊</div>
         <div id="total-materials" class="summary-board">
-             ✨ 星塵: <b id="total-starchrom">0</b> | 🛠️ 鋼錠: <b id="total-steel">0</b>
+            ✨ 星塵: <b id="total-starchrom">0</b> | 🛠️ 鋼錠: <b id="total-steel">0</b>
         </div>
     </div>
 
@@ -344,7 +340,7 @@
     </div>
 
     <div class="footer-tools">
-        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.4.0 / 倒計時與表格整合版</div>
+        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.4.1 / 倒計時同步更新版</div>
         <button class="reset-btn" onclick="resetList()">全部重置</button>
     </div>
 </div>
@@ -354,6 +350,26 @@
     const allNames = ["遠歸之蝶","遠歸之蝶-浮光藍","遠歸之蝶-星月夜","遠歸之蝶-故紙","迪斯可球","迪斯可球-次聲幻象","極寒水母","極寒水母-逆軌星臨","極寒水母-輝光異種","發條青蛙","電鰻","電鰻-次聲幻象","電鰻-月之預兆","電鰻-金色閃電","氣球狗","氣球狗-次聲幻象","氣球狗-金色閃電","活性凝膠","活性凝膠-次聲幻象","活性凝膠-春薔薇","活性凝膠-海藍星","活性凝膠-奶糖","活性凝膠-月之預兆","榮枯種子","捕夢網","低語孤狼","低語孤狼-爆裂熔火","低語孤狼-遠星遺淚","低語孤狼-月之預兆","低語孤狼-輝光異種","空間魔方","空間魔方-次聲幻象","空間魔方-白崖殘岩","乖乖兔","乖乖兔-次聲幻象","乖乖兔-愛麗絲","乖乖兔-叛逆黑","乖乖兔-水瓶座","乖乖兔-饕餮兔","熊醫生","熊醫生-次聲幻象","熊醫生:聖誕精靈","熊醫生-異異異變共棲","蜂團團","蜂團團-南瓜燈","蜂團團-燈花有餘","青龍","青龍-狂野","青龍-聖誕精靈","青龍-藍色音浪","工號37","工號37-次聲幻象","工號37-原型機","工號37-夢域","薑餅屋","薑餅屋-次聲幻象","一碗美味","一碗美味-次聲幻象","核子打火機","核子打火機-次聲幻象","凝視的黑貓","凝視的黑貓-法老","凝視的黑貓-逆軌星臨","胡桃夾子","胡桃夾子-次聲幻象","胡桃夾子-錯位童話","胡桃夾子-木黃","胡桃夾子-正紫","胡桃夾子-海藍","胡桃夾子-錫兵","胡桃夾子-麗紫","胡桃夾子-雅紫","胡桃夾子-糖格衛兵","胡桃夾子-白銀紳士","胡桃夾子-交錯光影","胡桃夾子-黃金年代","胡桃夾子-海軍上將","胡桃夾子-耶誕節","胡桃夾子-鑽石伯爵","胡桃夾子-銅綠","胡桃夾子-棗褐","胡桃夾子-碧湖","胡桃夾子-綠野","木工河狸","木工河狸-聖誕精靈","元素小子","元素小子-純金","元素小子-梭彩","元素小子-綠寶石","元素小子-發財骰","元素小子-一方通行","紅龍","紅龍-混沌","紅龍-月之預兆","蝶之夢","蝶之夢-異異異變共棲","空之子","空之子-輝光","空之子-爆裂熔火","空之子-極寒之觸","空之子-月之預兆","聯合體","願望先生","願望先生-混沌","願望先生-青龍鬥士","惡臭球根","惡臭球根-紫衣","雪景球","雪景球-次聲幻象","雪景球-異變共棲","龐然大菇","龐然大菇-大加倍","龐然大菇-一見青","龐然大菇-幽蕈","龐然大菇-異變共棲","皆斬","皆斬-月之預兆","雨人","雨人-童趣","雨人-童心","雨人-光雨","雨人-異變共棲","門扉","量子蝸牛","量子蝸牛-月之預兆","量子蝸牛-金色閃電","派對猴","派對猴-次聲幻象","上界之卵","上界之卵-異變共棲","巫毒娃娃","巫毒娃娃-絨毛咒物","巫毒娃娃-逆軌星臨","炎之精","炎之精-王子","炎之精-金蟾","破碎少女","破碎少女-巡遊魔女","迷你奇點","迷你奇點-爆裂熔火","迷你奇點-逆軌星臨","混沌-迷你奇點","異維大貓","異維大貓-大喜大利","異維大貓-大橘為重","異維大貓-月亮鑽石","異維大貓-渾沌","球狀閃電","迷你黃衣","迷你黃衣-食星異魔","迷你黃衣-逆軌星臨","小紙人","小紙人-次聲幻象","小紙人-魔女愛物","奪命兔","匠師之手","焦油布丁","焦油布丁-輻輝","焦油布丁-佳釀","魚航員","魚航員-常綠","快照","快照-次聲幻象","快照-愚者之憶","快照-月之預兆","永恆烈陽","永恆列陽-次聲幻象","永恆烈陽-邪陽","永恆烈陽-逆軌星臨","冬靈","冬靈-返春","冬靈-渾沌","冬靈-月之預兆","冰之瓶","守夜燈","願望箱","願望箱-次聲幻象","願望箱-夢域","鯨狗","喚生靈","狐主任","電螈","黑醫","搗蛋貓","桃旋鼬","疾旋鼬","狼犬","杜賓","拉布拉多","勇士喬治"];
 
     let cdInterval = null;
+
+    // --- 初始化搜尋功能 ---
+    function initDevSelect() {
+        const searchInput = document.getElementById('dev-search');
+        const select = document.getElementById('dev-select');
+        
+        function filterOptions(term) {
+            select.innerHTML = '';
+            const filtered = allNames.filter(n => n.includes(term));
+            filtered.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                select.appendChild(opt);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => filterOptions(e.target.value));
+        filterOptions(''); // 初始顯示全部
+    }
 
     function getNextResetTime(baseTime) {
         let resetTime = new Date(baseTime);
@@ -434,6 +450,7 @@
         // 初始化下拉選單
         const cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
         const now = new Date();
+        const currentVal = campSelect.value;
         campSelect.innerHTML = '<option value="" disabled selected>選擇收容地點...</option>';
         CAMPS.forEach(camp => {
             const isCD = cdTimestamps[camp] && (now < getNextResetTime(new Date(cdTimestamps[camp])));
@@ -484,7 +501,6 @@
         const tableBody = document.getElementById('log-table-body');
         const logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
 
-        // 渲染表格 (整合概覽)
         tableBody.innerHTML = logs.map(l => `
             <tr>
                 <td style="color:var(--header-color); font-size:0.75rem;">${l.time.split(' ')[1]}</td>
@@ -494,7 +510,6 @@
             </tr>
         `).join('');
 
-        // 渲染卡片 (詳細資訊與刪除功能)
         container.innerHTML = logs.map((l, index) => `
             <div class="log-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
@@ -515,33 +530,32 @@
         `).join('');
     }
 
-// 請找到 script 標籤中的 deleteLog 函數，替換成下面這段：
     function deleteLog(index) {
         if(!confirm("確定要刪除這條紀錄嗎？")) return;
         
         let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
-        const deletedLog = logs[index]; // 先記住被刪除的是哪個營地
+        const deletedLog = logs[index]; 
         
         logs.splice(index, 1);
         localStorage.setItem('camp-logs', JSON.stringify(logs));
 
-        // --- 新增：重置 CD 的邏輯 ---
-        const campLoc = deletedLog.loc;
-        // 檢查剩下的紀錄裡，是否還有同一個營地的紀錄
-        const stillHasRecord = logs.some(l => l.loc === campLoc);
-        
-        if (!stillHasRecord) {
-            // 如果該營地已經沒有任何紀錄了，就清除它的 CD 時間
-            let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
-            delete cdTimestamps[campLoc];
-            localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
+        // --- 重置 CD 邏輯 ---
+        if (deletedLog) {
+            const campLoc = deletedLog.loc;
+            const stillHasRecord = logs.some(l => l.loc === campLoc);
+            
+            if (!stillHasRecord) {
+                let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+                delete cdTimestamps[campLoc];
+                localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
+            }
         }
-        // -----------------------
 
         renderLogs();
-        updateCampSelect(); // 立即刷新下拉選單和 CD 狀態
+        updateCampSelect(); 
         alert("紀錄已移除，營地狀態已同步更新！");
     }
+
     function resetList() {
         if(confirm("確定重置所有核取方塊嗎？")) {
             document.querySelectorAll('input[type="checkbox"]').forEach(box => {
