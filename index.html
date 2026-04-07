@@ -515,30 +515,33 @@
         `).join('');
     }
 
+// 請找到 script 標籤中的 deleteLog 函數，替換成下面這段：
     function deleteLog(index) {
         if(!confirm("確定要刪除這條紀錄嗎？")) return;
+        
         let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        const deletedLog = logs[index]; // 先記住被刪除的是哪個營地
+        
         logs.splice(index, 1);
         localStorage.setItem('camp-logs', JSON.stringify(logs));
-        renderLogs();
-        updateCampSelect();
-    }
 
-    function initDevSelect() {
-        const select = document.getElementById('dev-select');
-        const search = document.getElementById('dev-search');
-        function filter(term) {
-            select.innerHTML = '';
-            allNames.filter(n => n.includes(term)).forEach(n => {
-                const opt = document.createElement('option');
-                opt.value = n; opt.textContent = n;
-                select.appendChild(opt);
-            });
+        // --- 新增：重置 CD 的邏輯 ---
+        const campLoc = deletedLog.loc;
+        // 檢查剩下的紀錄裡，是否還有同一個營地的紀錄
+        const stillHasRecord = logs.some(l => l.loc === campLoc);
+        
+        if (!stillHasRecord) {
+            // 如果該營地已經沒有任何紀錄了，就清除它的 CD 時間
+            let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+            delete cdTimestamps[campLoc];
+            localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
         }
-        search.addEventListener('input', (e) => filter(e.target.value));
-        filter('');
-    }
+        // -----------------------
 
+        renderLogs();
+        updateCampSelect(); // 立即刷新下拉選單和 CD 狀態
+        alert("紀錄已移除，營地狀態已同步更新！");
+    }
     function resetList() {
         if(confirm("確定重置所有核取方塊嗎？")) {
             document.querySelectorAll('input[type="checkbox"]').forEach(box => {
