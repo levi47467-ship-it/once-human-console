@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七日世界 - 終端行動控制台 V5.4.0</title>
+    <title>七日世界 - 終端行動控制台 V5.4.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 這裡完全保留妳的原始樣式 --- */
         :root {
             --bg-color: #0a1122;
             --card-bg: #11192e;
@@ -212,7 +211,6 @@
         }
         .camp-counter b { color: var(--accent-color); }
 
-        /* 新增：日誌表格樣式 */
         .log-table {
             width: 100%;
             border-collapse: collapse;
@@ -261,7 +259,6 @@
                     <label class="todo-item" id="purify-item">
                         <input type="checkbox" id="purify-checkbox"> 
                         領地淨化 (每週 40/40)
-                        <span id="purify-time" style="font-size: 0.7rem; color: var(--accent-color); margin-left: auto; opacity: 0.8;"></span>
                     </label>
                     <label class="todo-item"><input type="checkbox"> 營地委託任務 (每週 5/5)</label>
                     <label class="todo-item"><input type="checkbox"> 三菱子幣物資兌換</label>
@@ -315,8 +312,7 @@
                             <th>異/活</th>
                         </tr>
                     </thead>
-                    <tbody id="log-table-body">
-                        </tbody>
+                    <tbody id="log-table-body"></tbody>
                 </table>
             </div>
             
@@ -335,7 +331,7 @@
     <div id="furniture" class="tab-content">
         <div class="group-title">家具工坊</div>
         <div id="total-materials" class="summary-board">
-             ✨ 星塵: <b id="total-starchrom">0</b> | 🛠️ 鋼錠: <b id="total-steel">0</b>
+            ✨ 星塵: <b id="total-starchrom">0</b> | 🛠️ 鋼錠: <b id="total-steel">0</b>
         </div>
     </div>
 
@@ -344,7 +340,7 @@
     </div>
 
     <div class="footer-tools">
-        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.4.0 / 倒計時與表格整合版</div>
+        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.4.1 / 倒計時同步更新版</div>
         <button class="reset-btn" onclick="resetList()">全部重置</button>
     </div>
 </div>
@@ -355,6 +351,37 @@
 
     let cdInterval = null;
 
+// --- 初始化搜尋功能 (已修復重複代碼錯誤) ---
+    function initDevSelect() {
+        const searchInput = document.getElementById('dev-search');
+        const select = document.getElementById('dev-select');
+        
+        if (!searchInput || !select) return; // 安全檢查
+
+        // 負責把名字塞進選單的邏輯
+        function filterOptions(term) {
+            select.innerHTML = ''; // 先清空舊的
+            const filtered = allNames.filter(n => n.includes(term));
+            
+            filtered.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                select.appendChild(opt);
+            });
+
+            // 如果搜尋後有結果，預設選中第一個
+            if (filtered.length > 0) {
+                select.selectedIndex = 0;
+            }
+        }
+
+        // 監聽輸入事件
+        searchInput.addEventListener('input', (e) => filterOptions(e.target.value));
+        
+        // 初始執行一次，顯示全部
+        filterOptions(''); 
+    }
     function getNextResetTime(baseTime) {
         let resetTime = new Date(baseTime);
         resetTime.setHours(8, 0, 0, 0);
@@ -434,6 +461,7 @@
         // 初始化下拉選單
         const cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
         const now = new Date();
+        const currentVal = campSelect.value;
         campSelect.innerHTML = '<option value="" disabled selected>選擇收容地點...</option>';
         CAMPS.forEach(camp => {
             const isCD = cdTimestamps[camp] && (now < getNextResetTime(new Date(cdTimestamps[camp])));
@@ -484,7 +512,6 @@
         const tableBody = document.getElementById('log-table-body');
         const logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
 
-        // 渲染表格 (整合概覽)
         tableBody.innerHTML = logs.map(l => `
             <tr>
                 <td style="color:var(--header-color); font-size:0.75rem;">${l.time.split(' ')[1]}</td>
@@ -494,7 +521,6 @@
             </tr>
         `).join('');
 
-        // 渲染卡片 (詳細資訊與刪除功能)
         container.innerHTML = logs.map((l, index) => `
             <div class="log-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
@@ -515,33 +541,32 @@
         `).join('');
     }
 
-// 請找到 script 標籤中的 deleteLog 函數，替換成下面這段：
     function deleteLog(index) {
         if(!confirm("確定要刪除這條紀錄嗎？")) return;
         
         let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
-        const deletedLog = logs[index]; // 先記住被刪除的是哪個營地
+        const deletedLog = logs[index]; 
         
         logs.splice(index, 1);
         localStorage.setItem('camp-logs', JSON.stringify(logs));
 
-        // --- 新增：重置 CD 的邏輯 ---
-        const campLoc = deletedLog.loc;
-        // 檢查剩下的紀錄裡，是否還有同一個營地的紀錄
-        const stillHasRecord = logs.some(l => l.loc === campLoc);
-        
-        if (!stillHasRecord) {
-            // 如果該營地已經沒有任何紀錄了，就清除它的 CD 時間
-            let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
-            delete cdTimestamps[campLoc];
-            localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
+        // --- 重置 CD 邏輯 ---
+        if (deletedLog) {
+            const campLoc = deletedLog.loc;
+            const stillHasRecord = logs.some(l => l.loc === campLoc);
+            
+            if (!stillHasRecord) {
+                let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+                delete cdTimestamps[campLoc];
+                localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
+            }
         }
-        // -----------------------
 
         renderLogs();
-        updateCampSelect(); // 立即刷新下拉選單和 CD 狀態
+        updateCampSelect(); 
         alert("紀錄已移除，營地狀態已同步更新！");
     }
+
     function resetList() {
         if(confirm("確定重置所有核取方塊嗎？")) {
             document.querySelectorAll('input[type="checkbox"]').forEach(box => {
