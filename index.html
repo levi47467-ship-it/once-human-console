@@ -195,6 +195,17 @@
         .trait-negative { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
         .trait-normal { background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
         .trait-gold { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+/* 讓綠燈動起來的關鍵動畫 */
+@keyframes blink {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px #00ff00); }
+    50% { opacity: 0.3; filter: drop-shadow(0 0 2px #00ff00); }
+}
+
+/* 確保系統提醒文字有正確的動畫效果 */
+.system-mini-notice span {
+    display: inline-block;
+    color: var(--header-color);
+}
     </style>
 </head>
 <body>
@@ -426,33 +437,44 @@
         updateWeeklyDisplay();
     }
 
-    function updateWeeklyDisplay() {
-        const listContainer = document.getElementById('weekly-list-container');
-        const cdContainer = document.getElementById('weekly-cd-container');
-        const topNotice = document.getElementById('alert-slot-top');
-        const weeklyData = JSON.parse(localStorage.getItem('weekly-cd-v2') || '{}');
-        const now = new Date();
-        const resetTime = getNextMondayReset();
-        if (!listContainer) return;
-        listContainer.innerHTML = ''; cdContainer.innerHTML = '';
-        
-        WEEKLY_TASKS.forEach(task => {
-            const lastDone = weeklyData[task.id] ? new Date(weeklyData[task.id]) : null;
-            const lastReset = new Date(resetTime);
-            lastReset.setDate(lastReset.getDate() - 7);
-            const onCD = lastDone && new Date(lastDone) >= lastReset;
+function updateWeeklyDisplay() {
+    const listContainer = document.getElementById('weekly-list-container');
+    const cdContainer = document.getElementById('weekly-cd-container');
+    const topNotice = document.getElementById('alert-slot-top'); // 確保這行有在函式內
+    const weeklyData = JSON.parse(localStorage.getItem('weekly-cd-v2') || '{}');
+    const now = new Date();
+    const resetTime = getNextMondayReset();
+    
+    if (!listContainer) return;
+    listContainer.innerHTML = ''; cdContainer.innerHTML = '';
+    
+    let pendingCount = 0; // 新增：計算未完成數量
 
-            if (onCD) {
-                const diff = resetTime - now;
-                const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000);
-                cdContainer.innerHTML += `<div class="cd-item"><span>✅ ${task.label}</span><span class="cd-time">${d}d ${h}h ${m}m</span></div>`;
-            } else {
-                listContainer.innerHTML += `<label class="todo-item"><input type="checkbox" onchange="toggleWeeklyTask('${task.id}')"> ${task.label}</label>`;
-            }
-        });
-        topNotice.innerHTML = `<div class="system-mini-notice completed"><span>系統運作中...</span></div>`;
+    WEEKLY_TASKS.forEach(task => {
+        const lastDone = weeklyData[task.id] ? new Date(weeklyData[task.id]) : null;
+        const lastReset = new Date(resetTime);
+        lastReset.setDate(lastReset.getDate() - 7);
+        const onCD = lastDone && new Date(lastDone) >= lastReset;
+
+        if (onCD) {
+            const diff = resetTime - now;
+            const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000);
+            cdContainer.innerHTML += `<div class="cd-item"><span>✅ ${task.label}</span><span class="cd-time">${d}d ${h}h</span></div>`;
+        } else {
+            listContainer.innerHTML += `<label class="todo-item"><input type="checkbox" onchange="toggleWeeklyTask('${task.id}')"> ${task.label}</label>`;
+            pendingCount++; // 沒做完就加 1
+        }
+    });
+
+    // 關鍵修復：根據剩餘數量更新右上角提醒文字
+    if (topNotice) {
+        if (pendingCount > 0) {
+            topNotice.innerHTML = `<div class="system-mini-notice" style="color: var(--warning);"><span>⚠️ 偵測到 ${pendingCount} 項重要周常尚未完成</span></div>`;
+        } else {
+            topNotice.innerHTML = `<div class="system-mini-notice completed"><span>✨ 本週所有重要周常已完成</span></div>`;
+        }
     }
-
+}
     function saveDevantLog() {
         const name = document.getElementById('dev-select').value;
         const loc = document.getElementById('input-location').value;
@@ -674,23 +696,49 @@
         else { document.getElementById('name-input-area').style.display = 'block'; }
     }
 
-    function startBootSequence(userName) {
-        const hours = new Date().getHours();
-        let greet = (hours >= 5 && hours < 11) ? "早安" : (hours >= 11 && hours < 17) ? "午安" : (hours >= 17 && hours < 22) ? "歡迎回來" : "深夜了";
-        document.getElementById('boot-greet').innerText = `${greet}，超越者 ${userName}`;
-        document.getElementById('boot-sub').innerHTML = `<span style="color: #00ff00; animation: blink 1s infinite;">●</span> 系統同步完成，祝您今天獵殺愉快。`;
-        const bannerMini = document.getElementById('status-banner-mini');
-        if (bannerMini) bannerMini.innerHTML = `<div class="welcome-title">${greet}，超越者 ${userName}</div><div class="welcome-sub">系統連線穩定</div>`;
-        updateWeeklyDisplay();
-        renderDeviantGallery();
-        setTimeout(() => {
-            document.getElementById('boot-loader').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('boot-loader').style.display = 'none';
-                document.querySelector('.container').classList.add('show');
-            }, 1000);
-        }, 2000);
+function startBootSequence(userName) {
+    const hours = new Date().getHours();
+    let greet = (hours >= 5 && hours < 11) ? "早安" : (hours >= 11 && hours < 17) ? "午安" : (hours >= 17 && hours < 22) ? "歡迎回來" : "深夜了";
+    
+    // 1. 定義隨機台詞池
+    const welcomePool = [
+        "所有分流監控正常，今日適合收容新物種。",
+        "今日星塵濃度穩定，適合進行家具製作。",
+        "系統同步完成，祝您今天獵殺愉快。",
+        "偵測到領地能量穩定，生產效率提升中。"
+    ];
+    // 挑選一句作為本次啟動的「主台詞」
+    const randomSub = welcomePool[Math.floor(Math.random() * welcomePool.length)];
+    
+    // 2. 更新開機畫面中央文字
+    document.getElementById('boot-greet').innerText = `${greet}，超越者 ${userName}`;
+    document.getElementById('boot-sub').innerHTML = `<span style="color: #00ff00; text-shadow: 0 0 10px #00ff00; animation: blink 1s infinite;">●</span> ${randomSub}`;
+    
+    // 3. 修復右下角狀態欄內容 (使其與中央台詞一致)
+    const bannerMini = document.getElementById('status-banner-mini'); 
+    if (bannerMini) {
+        bannerMini.innerHTML = `
+            <div class="welcome-title">${greet}，${userName}</div>
+            <div class="welcome-sub">
+                <style>@keyframes blink-green { 0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px #0f0); } 50% { opacity: 0.3; } }</style>
+                <span style="color: #00ff00; animation: blink-green 1.5s infinite; margin-right: 5px;">●</span> 
+                ${randomSub} 
+            </div>`;
     }
+
+    // 4. 執行周常檢查 (更新右上角重要提醒)
+    updateWeeklyDisplay(); 
+    renderDeviantGallery();
+
+    // 5. 轉場動畫
+    setTimeout(() => {
+        document.getElementById('boot-loader').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('boot-loader').style.display = 'none';
+            document.querySelector('.container').classList.add('show');
+        }, 1000);
+    }, 2000);
+}
 </script>
 </body>
 </html>
