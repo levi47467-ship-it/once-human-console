@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>七日世界 - 終端行動控制台 V5.6.3</title>
+    <title>七日世界 - 終端行動控制台 V5.8.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,6 +16,7 @@
             --tab-inactive: #1a253a;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --success: #22c55e;
         }
 
         body {
@@ -35,24 +36,28 @@
             top: 0; left: 0; width: 100%; height: 100vh;
             background-color: var(--bg-color);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999; transition: opacity 1s ease-out;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
         }
 
         .boot-text-wrapper { text-align: left; border-left: 3px solid var(--accent-color); padding-left: 20px; }
         #name-input-area { display: none; margin-top: 20px; text-align: center; }
 
         .cyber-input {
-            background: rgba(52, 234, 214, 0.1); border: 1px solid var(--accent-color);
+            background: rgba(52, 234, 214, 0.1);
+            border: 1px solid var(--accent-color);
             color: white; padding: 10px; font-family: inherit; border-radius: 4px; outline: none; margin-right: 10px;
         }
 
         .cyber-btn {
-            background: var(--accent-color); color: var(--bg-color); border: none;
+            background: var(--accent-color);
+            color: var(--bg-color); border: none;
             padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 4px;
         }
 
         .container {
-            width: 100%; max-width: 1100px; background: var(--card-bg); padding: 35px;
+            width: 100%;
+            max-width: 1100px; background: var(--card-bg); padding: 35px;
             border-radius: 16px; box-shadow: 0 0 30px rgba(52, 234, 214, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.05); opacity: 0;
             transition: opacity 1.5s ease-in; pointer-events: none;
@@ -61,14 +66,13 @@
         .container.show { opacity: 1; pointer-events: auto; }
 
         h1 {
-            text-align: center; font-size: 2.2rem; color: var(--accent-color);
+            text-align: center;
+            font-size: 2.2rem; color: var(--accent-color);
             margin-bottom: 30px; letter-spacing: 6px; text-shadow: 0 0 15px rgba(52, 234, 214, 0.5);
             font-weight: 700;
         }
 
-        .top-right-notice {
-            position: absolute; top: 0; right: 0;
-        }
+        .top-right-notice { position: absolute; top: 0; right: 0; }
 
         .system-mini-notice {
             display: flex; align-items: center; gap: 8px; font-size: 0.75rem;
@@ -76,27 +80,9 @@
             animation: notice-blink 3s infinite;
         }
 
-        .system-mini-notice.completed {
-            animation: none;
-            opacity: 0.8;
-        }
+        .system-mini-notice.completed { animation: none; opacity: 0.8; }
 
-        @keyframes notice-blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .system-mini-notice .notice-dot {
-            width: 6px; height: 6px; background: var(--accent-color);
-            border-radius: 50%; box-shadow: 0 0 8px var(--accent-color);
-            animation: pulse-dot 2s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes notice-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         .status-banner-mini {
             position: fixed; bottom: 20px; right: 20px;
@@ -109,7 +95,6 @@
 
         .welcome-title { font-size: 1rem; font-weight: bold; color: var(--accent-color); margin-bottom: 2px; }
         .welcome-sub { font-size: 0.8rem; color: #888; letter-spacing: 1px; }
-        @keyframes blink { 50% { opacity: 0; } }
 
         .tabs {
             display: flex; gap: 8px; margin-bottom: 30px; border-bottom: 2px solid var(--tab-inactive);
@@ -131,10 +116,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .summary-board {
             background: rgba(52, 234, 214, 0.05); padding: 15px 20px; border-radius: 12px;
@@ -178,18 +160,6 @@
 
         #dev-select { height: 150px !important; }
 
-        .log-card {
-            background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 10px;
-            margin-bottom: 12px; border-left: 5px solid var(--sub-accent); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .log-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
-        .log-tag { background: rgba(52, 234, 214, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; color: var(--accent-color); }
-
-        .cd-warning-panel { font-size: 0.85rem; color: var(--warning); margin-top: 10px; display: flex; gap: 12px; flex-wrap: wrap; }
-        .camp-counter { font-size: 0.8rem; text-align: right; margin-bottom: 5px; color: var(--header-color); }
-        .camp-counter b { color: var(--accent-color); }
-
         .log-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; color: var(--text-color); }
         .log-table th { text-align: left; padding: 10px; border-bottom: 2px solid var(--accent-color); color: var(--accent-color); }
         .log-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -197,9 +167,34 @@
         .cd-item {
             color: var(--header-color); font-size: 0.85rem; padding: 10px;
             background: rgba(255,255,255,0.03); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; margin-top: 5px;
         }
         .cd-time { color: var(--warning); font-family: 'Orbitron'; }
+
+        .deviant-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; padding: 10px; }
+        .deviant-node {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px; border-radius: 8px; text-align: center; transition: 0.3s; position: relative;
+        }
+        .deviant-node.owned { border-color: var(--accent-color); background: rgba(52, 234, 214, 0.05); order: -1; }
+        .deviant-node .count-badge {
+            position: absolute; top: 5px; right: 8px; font-size: 0.7rem;
+            background: var(--accent-color); color: var(--bg-color);
+            padding: 2px 6px; border-radius: 10px; font-weight: bold; display: none;
+        }
+        .deviant-node.owned .count-badge { display: block; }
+        .deviant-node .status-badge {
+            font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;
+            margin-bottom: 8px; display: inline-block; background: #333; color: #888;
+        }
+        .deviant-node.owned .status-badge { background: var(--accent-color); color: var(--bg-color); font-weight: bold; }
+        .deviant-node .dev-name { display: block; font-size: 0.9rem; color: var(--header-color); }
+        .deviant-node.owned .dev-name { color: var(--text-color); font-weight: bold; }
+
+        .trait-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .trait-negative { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .trait-normal { background: rgba(96, 165, 250, 0.1); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
+        .trait-gold { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
     </style>
 </head>
 <body>
@@ -256,6 +251,23 @@
                         <input type="text" id="dev-search" class="dev-input" placeholder="輸入關鍵字...">
                         <select id="dev-select" style="margin-top:5px;" size="6"></select>
                     </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display:block; font-size:0.8rem; margin-bottom:5px; color: var(--header-color);">✨ 異常物特性 (Traits)</label>
+                        <div style="display: flex; gap: 8px; margin-bottom: 5px;">
+                            <select id="trait-category" onchange="updateTraitList()" style="flex: 1;">
+                                <option value="">分類...</option>
+                                <option value="negative">🔻 負面</option>
+                                <option value="normal">⚪ 一般</option>
+                                <option value="gold">⭐ 金色</option>
+                            </select>
+                            <select id="input-traits" style="flex: 2;">
+                                <option value="">請先選擇分類</option>
+                            </select>
+                        </div>
+                        <div id="trait-effect-hint" style="font-size: 0.7rem; color: var(--sub-accent); min-height: 1.2rem; padding: 2px 5px; background: rgba(255,255,255,0.03); border-radius: 4px;"></div>
+                    </div>
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div><label style="display:block; font-size:0.8rem; margin-bottom:5px;">品質</label><select id="input-quality"><option>普通</option><option>異色</option></select></div>
                         <div><label style="display:block; font-size:0.8rem; margin-bottom:5px;">類型</label><select id="input-type"><option>領地</option><option>造物</option><option>戰鬥</option></select></div>
@@ -267,23 +279,27 @@
                         <select id="input-location"></select>
                     </div>
                 </div>
-                <div id="camp-counter" class="camp-counter"></div>
+                
                 <button id="save-btn" onclick="saveDevantLog()" style="width:100%; height:50px; background:var(--accent-color); color:#0a1122; border:none; border-radius:8px; font-size:1.1rem; font-weight:bold; cursor:pointer;">
                     ➕ 保存本次收容紀錄
                 </button>
+                
+                <div id="camp-counter" class="camp-counter" style="margin-top: 15px; font-size: 0.85rem; color: var(--header-color);"></div>
                 <div id="cd-status" class="cd-warning-panel"></div>
             </div>
 
-            <div class="group-title">📋 收容日誌概覽</div>
+            <div class="group-title">✨ 詳細記錄卡片</div>
+            <div id="log-cards-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px;"></div>
+
+            <div class="group-title">📋 收容日誌總覽 (Summary)</div>
             <div class="summary-board" style="padding: 0; overflow: hidden;">
                 <table class="log-table">
                     <thead>
-                        <tr><th>時間</th><th>名稱</th><th>地點</th><th>異/活</th></tr>
+                        <tr><th>時間</th><th>名稱</th><th>地點</th><th>異/活</th><th>操作</th></tr>
                     </thead>
                     <tbody id="log-table-body"></tbody>
                 </table>
             </div>
-            <div id="log-list"></div>
         </div>
     </div>
 
@@ -291,22 +307,26 @@
         <div class="group-title">地圖掃蕩清單</div>
         <div class="sub-options-grid">
             <label class="todo-item"><input type="checkbox"> 岱頓濕地各據點</label>
+            <label class="todo-item"><input type="checkbox"> 邁爾集市物資箱</label>
+            <label class="todo-item"><input type="checkbox"> 破碎三角洲據點</label>
+            <label class="todo-item"><input type="checkbox"> 鐵鏽河資源收集</label>
         </div>
     </div>
 
     <div id="furniture" class="tab-content">
         <div class="group-title">家具工坊</div>
         <div id="total-materials" class="summary-board">
-            ✨ 星塵: <b>0</b> | 🛠️ 鋼錠: <b>0</b>
+            ✨ 星塵: <b>0</b> | 🛠️ 鋼錠: <b>0</b> (此功能開發中)
         </div>
     </div>
 
     <div id="deviants" class="tab-content">
-        <div class="group-title">異常物一覽</div>
+        <div class="group-title">異常物一覽 (收容進度)</div>
+        <div id="deviant-gallery-container" class="deviant-gallery"></div>
     </div>
 
     <div class="footer-tools">
-        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.6.3 / 已修正文字閃爍速度與 CD 重置</div>
+        <div style="color: var(--header-color); font-size: 0.8rem;">OS: V5.8.0 / 異常物特性功能已上線</div>
         <button onclick="clearIdentity()" style="font-size:0.85rem; color:#ff4444; font-weight:bold; background:none; border:none; cursor:pointer;">[ 重置身份名稱 ]</button>
         <button class="reset-btn" onclick="resetList()">全部重置</button>
     </div>
@@ -320,15 +340,74 @@
         { id: 'mitsubishi', label: '三菱子幣物資兌換' },
         { id: 'salt_battery', label: '商人電池兌換 (賣鹽/汽水)' }
     ];
-    const allNames = ["遠歸之蝶","遠歸之蝶-浮光藍","遠歸之蝶-星月夜","遠歸之蝶-故紙","迪斯可球","迪斯可球-次聲幻象","極寒水母","極寒水母-逆軌星臨","極寒水母-輝光異種","發條青蛙","電鰻","電鰻-次聲幻象","電鰻-月之預兆","電鰻-金色閃電","氣球狗","氣球狗-次聲幻象","氣球狗-金色閃電","活性凝膠","活性凝膠-次聲幻象","活性凝膠-春薔薇","活性凝膠-海藍星","活性凝膠-奶糖","活性凝膠-月之預兆","榮枯種子","捕夢網","低語孤狼","低語孤狼-爆裂熔火","低語孤狼-遠星遺淚","低語孤狼-月之預兆","低語孤狼-輝光異種","空間魔方","空間魔方-次聲幻象","空間魔方-白崖殘岩","乖乖兔","乖乖兔-次聲幻象","乖乖兔-愛麗絲","乖乖兔-叛逆黑","乖乖兔-水瓶座","乖乖兔-饕餮兔","熊醫生","熊醫生-次聲幻象","熊醫生:聖誕精靈","熊醫生-異異異變共棲","蜂團團","蜂團團-南瓜燈","蜂團團-燈花有餘","青龍","青龍-狂野","青龍-聖誕精靈","青龍-藍色音浪","工號37","工號37-次聲幻象","工號37-原型機","工號37-夢域","薑餅屋","薑餅屋-次聲幻象","一碗美味","一碗美味-次聲幻象","核子打火機","核子打火機-次聲幻象","凝視的黑貓","凝視的黑貓-法老","凝視的黑貓-逆軌星臨","胡桃夾子","胡桃夾子-次聲幻象","胡桃夾子-錯位童話","胡桃夾子-木黃","胡桃夾子-正紫","胡桃夾子-海藍","胡桃夾子-錫兵","胡桃夾子-麗紫","胡桃夾子-雅紫","胡桃夾子-糖格衛兵","胡桃夾子-白銀紳士","胡桃夾子-交錯光影","胡桃夾子-黃金年代","胡桃夾上-海軍上將","胡桃夾子-耶誕節","胡桃夾子-鑽石伯爵","胡桃夾子-銅綠","胡桃夾子-棗褐","胡桃夾子-碧湖","胡桃夾子-綠野","木工河狸","木工河狸-聖誕精靈","元素小子","元素小子-純金","元素小子-梭彩","元素小子-綠寶石","元素小子-發財骰","元素小子-一方通行","紅龍","紅龍-混沌","紅龍-月之預兆","蝶之夢","蝶之夢-異異異變共棲","空之子","空之子-輝光","空之子-爆裂熔火","空之子-極寒之觸","空之子-月之預兆","聯合體","願望先生","願望先生-混沌","願望先生-青龍鬥士","惡臭球根","惡臭球根-紫衣","雪景球","雪景球-次聲幻象","雪景球-異異異變共棲","龐然大菇","龐然大菇-大加倍","龐然大菇-一見青","龐然大菇-幽蕈","龐然大菇-異異異變共棲","皆斬","皆斬-月之預兆","雨人","雨人-童趣","雨人-童心","雨人-光雨","雨人-異異異變共棲","門扉","量子蝸牛","量子蝸牛-月之預兆","量子蝸牛-金色閃電","派對猴","派對猴-次聲幻象","上界之卵","上界之卵-異異異變共棲","巫毒娃娃","巫毒娃娃-絨毛咒物","巫毒娃娃-逆軌星臨","炎之精","炎之精-王子","炎之精-金蟾","破碎少女","破碎少女-巡遊魔女","迷你奇點","迷你奇點-爆裂熔火","迷你奇點-逆軌星臨","混沌-迷你奇點","異維大貓","異維大貓-大喜大利","異維大貓-大橘為重","異維大貓-月亮鑽石","異維大貓-渾沌","球狀閃電","迷你黃衣","迷你黃衣-食星異魔","迷你黃衣-逆軌星臨","小紙人","小紙人-次聲幻象","小紙人-魔女愛物","奪命兔","匠師之手","焦油布丁","焦油布丁-輻輝","焦油布丁-佳釀","魚航員","魚航員-常綠","快照","快照-次聲幻象","快照-愚者之憶","快照-月之預兆","永恆烈陽","永恆列陽-次聲幻象","永恆烈陽-邪陽","永恆烈陽-逆軌星臨","冬靈","冬靈-返春","冬靈-渾沌","冬靈-月之預兆","冰之瓶","守夜燈","願望箱","願望箱-次聲幻象","願望箱-夢域","鯨狗","喚生靈","狐主任","電螈","黑醫","搗蛋貓","桃旋鼬","疾旋鼬","狼犬","杜賓","拉布拉多","勇士喬治"];
+    
+    const TRAITS_DB = {
+        negative: [
+            {n: "陳舊", e: "異常能量上限減少5.0%"}, {n: "陳舊2", e: "異常能量上限減少10.0%"},
+            {n: "抑鬱", e: "活躍度上限減少5.0%"}, {n: "抑鬱2", e: "活躍度上限減少10.0%"},
+            {n: "足不出戶", e: "同步後若在聚落，玩家耐力消耗+8%"}, {n: "缺乏鍛鍊", e: "同步後若在聚落，玩家負重上限-8"},
+            {n: "懶惰", e: "造物型產出資源的時間間隔增加10%"}, {n: "順手牽羊", e: "活躍<20%，產出時扣除他者5點能量"},
+            {n: "不存在的小杯", e: "造物型可容納資源上限減少10%"}, {n: "笨手笨腳", e: "造物型產出資源有5%機率少1個"},
+            {n: "懶骨頭", e: "領地型工作回傳間隔增加5%"}, {n: "摸魚", e: "領地型工作能耗/活躍消耗間隔減少5%"},
+            {n: "迷惑行為", e: "能量下降時10%機率影響其他領地型"}, {n: "拖後腿", e: "活躍下降時10%機率影響其他領地型"}
+        ],
+        normal: [
+            {n: "激發活力1", e: "活躍上限+30%，能量恢復速度-5%"}, {n: "激發活力2", e: "活躍上限+40%，能量恢復速度-5%"},
+            {n: "激發活力3", e: "活躍上限+50%，能量恢復速度-5%"}, {n: "拓展內在1", e: "能量上限+30%，活躍恢復速度-5%"},
+            {n: "馱獸", e: "負重上限+8"}, {n: "大力士", e: "負重上限+15，移速-5%"},
+            {n: "跑快快", e: "移動速度+5%"}, {n: "效率至上", e: "造物型產出間隔降低5%"},
+            {n: "中杯", e: "造物型可容納資源上限增加10%"}
+        ],
+        gold: [
+            {n: "能量穩固", e: "能量上限增加30"}, {n: "活躍穩固", e: "活躍上限增加30"},
+            {n: "後備隱藏能源4", e: "異常能量上限增加30%"}, {n: "電表倒轉2", e: "異常能量恢復速度增加10%"},
+            {n: "真正的捲王", e: "領地型工作能耗/活躍消耗間隔增加20%"}, {n: "毒理學家", e: "領地型帶回資源有機率獲得酸液"},
+            {n: "神槍手", e: "異常物在場戰鬥，玩家槍械傷害+5%"}, {n: "念力小子", e: "異常物在場戰鬥，玩家異常傷害+5%"}
+        ]
+    };
+
+    const allNames = ["遠歸之蝶","遠歸之蝶-故紙","迪斯可球","極寒水母","發條青蛙","電鰻","氣球狗","活性凝膠","榮枯種子","捕夢網","低語孤狼","空間魔方","乖乖兔","熊醫生","蜂團團","青龍","工號37","薑餅屋","一碗美味","核子打火機","凝視的黑貓","胡桃夾子","木工河狸","元素小子","紅龍","蝶之夢","空之子","聯合體","願望先生","惡臭球根","雪景球","龐然大菇","皆斬","雨人","門扉","量子蝸牛","派對猴","上界之卵","巫毒娃娃","炎之精","破碎少女","迷你奇點","異維大貓","球狀閃電","迷你黃衣","小紙人","奪命兔","匠師之手","焦油布丁","魚航員","快照","永恆烈陽","冬靈","冰之瓶","守夜燈","願望箱","鯨狗","喚生靈","狐主任","電螈","黑醫","搗蛋貓","疾旋鼬","狼犬","杜賓","拉布拉多","勇士喬治"];
 
     let cdInterval = null;
-    let weeklyInterval = null;
-    let currentRandomTask = null; 
+    let currentRandomTask = null;
 
-    function normalizeCampName(name) {
-        if (!name) return "";
-        return name.replace("邁", "麥").trim();
+    window.onload = function() {
+        showWelcomeMessage();
+        initDevSelect();
+        updateCampSelect();
+        renderLogs();
+    };
+
+    // 特性連動邏輯
+    function updateTraitList() {
+        const cat = document.getElementById('trait-category').value;
+        const traitSelect = document.getElementById('input-traits');
+        const hint = document.getElementById('trait-effect-hint');
+        traitSelect.innerHTML = '<option value="">選擇特性...</option>';
+        hint.innerText = '';
+
+        if (cat && TRAITS_DB[cat]) {
+            TRAITS_DB[cat].forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.n;
+                opt.dataset.effect = t.e;
+                opt.textContent = t.n;
+                traitSelect.appendChild(opt);
+            });
+        }
+    }
+
+    document.getElementById('input-traits').addEventListener('change', function() {
+        const selected = this.options[this.selectedIndex];
+        document.getElementById('trait-effect-hint').innerText = selected.dataset.effect || '';
+    });
+
+    function normalizeCampName(name) { return name ? name.replace("邁", "麥").trim() : ""; }
+    function getNextResetTime(baseTime) {
+        let resetTime = new Date(baseTime);
+        resetTime.setHours(8, 0, 0, 0);
+        if (baseTime >= resetTime) resetTime.setDate(resetTime.getDate() + 1);
+        return resetTime;
     }
 
     function getNextMondayReset() {
@@ -340,33 +419,10 @@
         return result;
     }
 
-    function getRandomTask() {
-        const weeklyData = JSON.parse(localStorage.getItem('weekly-cd-v2') || '{}');
-        const resetTime = getNextMondayReset();
-        const lastReset = new Date(resetTime);
-        lastReset.setDate(lastReset.getDate() - 7);
-
-        const undoneTasks = WEEKLY_TASKS.filter(task => {
-            const lastDone = weeklyData[task.id] ? new Date(weeklyData[task.id]) : null;
-            return !(lastDone && lastDone >= lastReset);
-        });
-
-        // 如果還有未完成的，從未完成中隨機挑選；否則隨機挑選全部中的一個
-        const pool = undoneTasks.length > 0 ? undoneTasks : WEEKLY_TASKS;
-        return pool[Math.floor(Math.random() * pool.length)];
-    }
-
-    // 修復：切換任務狀態後，主動檢查並更新隨機提醒文字
     function toggleWeeklyTask(id) {
         const weeklyData = JSON.parse(localStorage.getItem('weekly-cd-v2') || '{}');
         weeklyData[id] = new Date().toISOString();
         localStorage.setItem('weekly-cd-v2', JSON.stringify(weeklyData));
-        
-        // 重點：如果剛完成的是目前的提醒任務，則立即刷新隨機任務
-        if (currentRandomTask && id === currentRandomTask.id) {
-            currentRandomTask = getRandomTask();
-        }
-        
         updateWeeklyDisplay();
     }
 
@@ -377,137 +433,202 @@
         const weeklyData = JSON.parse(localStorage.getItem('weekly-cd-v2') || '{}');
         const now = new Date();
         const resetTime = getNextMondayReset();
-
-        listContainer.innerHTML = '';
-        cdContainer.innerHTML = '';
-
-        if (!currentRandomTask) {
-            currentRandomTask = getRandomTask();
-        }
-
-        let taskStatus = { isDone: false, label: currentRandomTask.label };
-
+        if (!listContainer) return;
+        listContainer.innerHTML = ''; cdContainer.innerHTML = '';
+        
         WEEKLY_TASKS.forEach(task => {
             const lastDone = weeklyData[task.id] ? new Date(weeklyData[task.id]) : null;
-            let onCD = false;
-
-            if (lastDone) {
-                const lastReset = new Date(resetTime);
-                lastReset.setDate(lastReset.getDate() - 7);
-                if (lastDone >= lastReset) {
-                    onCD = true;
-                    if (task.id === currentRandomTask.id) taskStatus.isDone = true;
-                }
-            }
+            const lastReset = new Date(resetTime);
+            lastReset.setDate(lastReset.getDate() - 7);
+            const onCD = lastDone && new Date(lastDone) >= lastReset;
 
             if (onCD) {
                 const diff = resetTime - now;
-                const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                cdContainer.innerHTML += `
-                    <div class="cd-item">
-                        <span>✅ ${task.label}</span>
-                        <span class="cd-time">${d}d ${h}h ${m}m ${s}s</span>
-                    </div>`;
+                const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000);
+                cdContainer.innerHTML += `<div class="cd-item"><span>✅ ${task.label}</span><span class="cd-time">${d}d ${h}h ${m}m</span></div>`;
             } else {
-                listContainer.innerHTML += `
-                    <label class="todo-item">
-                        <input type="checkbox" onchange="toggleWeeklyTask('${task.id}')"> ${task.label}
-                    </label>`;
+                listContainer.innerHTML += `<label class="todo-item"><input type="checkbox" onchange="toggleWeeklyTask('${task.id}')"> ${task.label}</label>`;
             }
         });
-
-        // 更新頂部顯示
-        if (taskStatus.isDone) {
-            // 如果剛好完成了，文字會顯示已完成，並在下一秒透過 setInterval 切換成下一個（或由 toggle 觸發）
-            topNotice.innerHTML = `
-                <div class="system-mini-notice completed">
-                    <div class="notice-dot" style="background:#888; box-shadow:none;"></div>
-                    <span>任務完成：${taskStatus.label}</span>
-                </div>`;
-        } else {
-            topNotice.innerHTML = `
-                <div class="system-mini-notice">
-                    <div class="notice-dot"></div>
-                    <span>重要周常：${taskStatus.label} 是否完成？</span>
-                </div>`;
-        }
+        topNotice.innerHTML = `<div class="system-mini-notice completed"><span>系統運作中...</span></div>`;
     }
 
-    function confirmIdentity() {
-        const nameField = document.getElementById('user-name-field');
-        const name = nameField.value.trim();
-        if (name) {
-            localStorage.setItem('terminal-username', name);
-            document.getElementById('name-input-area').style.display = 'none';
-            startBootSequence(name);
-        } else {
-            alert("請輸入代號以同步系統。");
-        }
-    }
+    function saveDevantLog() {
+        const name = document.getElementById('dev-select').value;
+        const loc = document.getElementById('input-location').value;
+        const trait = document.getElementById('input-traits').value;
+        const effect = document.getElementById('trait-effect-hint').innerText;
 
-    function clearIdentity() {
-        if(confirm("確定要清除記憶的名字嗎？下次啟動需要重新輸入。")) {
-            localStorage.removeItem('terminal-username');
-            location.reload();
-        }
-    }
+        if (!name || !loc) return alert("請選擇異常物名稱與收容地點！");
 
-    function showWelcomeMessage() {
-        const storedName = localStorage.getItem('terminal-username');
-        if (storedName) {
-            startBootSequence(storedName);
-        } else {
-            document.getElementById('name-input-area').style.display = 'block';
-        }
-    }
+        const log = {
+            time: new Date().toLocaleString(),
+            name: name,
+            quality: document.getElementById('input-quality').value,
+            type: document.getElementById('input-type').value,
+            power: document.getElementById('input-power').value,
+            active: document.getElementById('input-active').value,
+            loc: loc,
+            trait: trait || "無",
+            effect: effect || "",
+            traitType: document.getElementById('trait-category').value,
+            timestamp: new Date().getTime()
+        };
 
-    function startBootSequence(userName) {
-        const hours = new Date().getHours();
-        let greet = (hours >= 5 && hours < 11) ? "早安" : (hours >= 11 && hours < 17) ? "午安" : (hours >= 17 && hours < 22) ? "歡迎回來" : "深夜了";
+        let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        logs.unshift(log);
+        localStorage.setItem('camp-logs', JSON.stringify(logs));
         
-        const welcomePool = ["所有分流監控正常，今日適合收容新物種。", "今日星塵濃度穩定，適合進行家具製作。", "系統同步完成，祝您今天獵殺愉快。"];
-        const randomSub = welcomePool[Math.floor(Math.random() * welcomePool.length)];
+        let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+        cdTimestamps[loc] = new Date().getTime();
+        localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
         
-        document.getElementById('boot-greet').innerText = `${greet}，超越者 ${userName}`;
-        document.getElementById('boot-sub').innerHTML = `<span style="color: #00ff00; animation: blink 1s infinite;">●</span> ${randomSub}`;
-
-        const bannerMini = document.getElementById('status-banner-mini'); 
-        if (bannerMini) {
-            bannerMini.innerHTML = `<div class="welcome-title">${greet}，超越者 ${userName}</div><div class="welcome-sub"><span style="color: #00ff00; animation: blink 1s infinite;">●</span> ${randomSub}</div>`;
-        }
-
-        currentRandomTask = getRandomTask();
-        updateWeeklyDisplay();
-
-        setTimeout(() => {
-            document.getElementById('boot-loader').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('boot-loader').style.display = 'none';
-                document.querySelector('.container').classList.add('show');
-            }, 1000);
-        }, 2500);
+        renderLogs();
+        updateCampSelect();
+        renderDeviantGallery();
+        alert(`收容成功！${loc} 已進入 CD 狀態。`);
     }
 
-    function initDevSelect() {
-        const searchInput = document.getElementById('dev-search');
-        const select = document.getElementById('dev-select');
-        function filterOptions(term) {
-            select.innerHTML = '';
-            allNames.filter(n => n.includes(term)).forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name; opt.textContent = name;
-                select.appendChild(opt);
+    function renderLogs() {
+        const logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        const tbody = document.getElementById('log-table-body');
+        const cardsContainer = document.getElementById('log-cards-container');
+        
+        if (tbody) {
+            tbody.innerHTML = logs.map((l, i) => `
+                <tr>
+                    <td>${l.time.split(' ')[1]}</td>
+                    <td style="color:var(--accent-color)">${l.name}</td>
+                    <td>${l.loc}</td>
+                    <td>${l.power}/${l.active}</td>
+                    <td><button onclick="deleteLog(${i})" style="color:var(--danger); background:none; border:none; cursor:pointer;">刪除</button></td>
+                </tr>
+            `).join('');
+        }
+
+        if (cardsContainer) {
+            cardsContainer.innerHTML = logs.slice(0, 4).map((l, i) => {
+                let traitClass = "trait-normal";
+                if (l.traitType === "negative") traitClass = "trait-negative";
+                if (l.traitType === "gold") traitClass = "trait-gold";
+
+                return `
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid #334155; padding: 12px; border-radius: 8px; position: relative; border-left: 3px solid var(--accent-color);">
+                    <div style="font-size: 0.7rem; color: var(--header-color); display: flex; justify-content: space-between;">
+                        <span>${l.time}</span>
+                        <span>${l.type}</span>
+                    </div>
+                    <div style="color: var(--accent-color); font-weight: bold; font-size: 1.1rem; margin: 4px 0;">${l.name}</div>
+                    <div style="font-size: 0.85rem; color: #cbd5e1;">📍 ${l.loc}</div>
+                    <div style="display: flex; gap: 10px; margin-top: 5px; font-size: 0.8rem; align-items: center;">
+                        <span style="color: #fbbf24; background: rgba(251,191,36,0.1); padding: 1px 5px; border-radius:3px;">⭐ ${l.quality || '普通'}</span>
+                        <span style="background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius:3px;">🔋 ${l.power}/${l.active}</span>
+                    </div>
+                    <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 5px;">
+                        <div class="trait-tag ${traitClass}">${l.trait}</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 3px;">${l.effect}</div>
+                    </div>
+                    <div onclick="deleteLog(${i})" style="position: absolute; bottom: 8px; right: 10px; font-size: 0.7rem; color: #666; cursor: pointer;">[ 移除此紀錄 ]</div>
+                </div>
+            `}).join('');
+        }
+    }
+
+    function deleteLog(index) {
+        let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        const targetLog = logs[index];
+        if(!confirm(`確定要刪除「${targetLog.name}」的紀錄嗎？\n這將會同步重置「${targetLog.loc}」的收容 CD。`)) return;
+
+        let cdData = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+        if (cdData[targetLog.loc]) {
+            delete cdData[targetLog.loc];
+            localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdData));
+        }
+
+        logs.splice(index, 1);
+        localStorage.setItem('camp-logs', JSON.stringify(logs));
+        renderLogs();
+        updateCampSelect();
+        renderDeviantGallery();
+    }
+
+    function renderDeviantGallery() {
+        const container = document.getElementById('deviant-gallery-container');
+        if (!container) return;
+        const logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
+        const counts = {};
+        logs.forEach(l => { counts[l.name] = (counts[l.name] || 0) + 1; });
+        
+        const sortedList = [...allNames].sort((a, b) => {
+            const countA = counts[a] || 0;
+            const countB = counts[b] || 0;
+            if (countA !== countB) return countB - countA;
+            return a.localeCompare(b, 'zh-TW');
+        });
+
+        container.innerHTML = sortedList.map(name => {
+            const count = counts[name] || 0;
+            const isOwned = count > 0;
+            return `<div class="deviant-node ${isOwned ? 'owned' : ''}">${isOwned ? `<div class="count-badge">x${count}</div>` : ''}<div class="status-badge">${isOwned ? '已收容' : '未發現'}</div><span class="dev-name">${name}</span></div>`;
+        }).join('');
+    }
+
+    function updateCampSelect() {
+        const campSelect = document.getElementById('input-location');
+        const saveBtn = document.getElementById('save-btn');
+        const cdStatus = document.getElementById('cd-status');
+        const campCounter = document.getElementById('camp-counter');
+        if (cdInterval) clearInterval(cdInterval);
+
+        const refresh = () => {
+            const cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
+            const now = new Date();
+            let activeCDsInfo = [], availableCamps = [];
+
+            CAMPS.forEach(camp => {
+                const normCamp = normalizeCampName(camp);
+                let ts = null;
+                Object.keys(cdTimestamps).forEach(key => { if (normalizeCampName(key) === normCamp) ts = cdTimestamps[key]; });
+                let isEffectiveCD = false;
+                if (ts) {
+                    const resetTime = getNextResetTime(new Date(ts));
+                    const diff = resetTime - now;
+                    if (diff > 0) {
+                        isEffectiveCD = true;
+                        const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+                        activeCDsInfo.push(`<div class="cd-item">⏳ ${camp} 剩餘時間 <span class="cd-time">${h}h ${m}m ${s}s</span></div>`);
+                    }
+                }
+                if (!isEffectiveCD) availableCamps.push(camp);
             });
-        }
-        searchInput.addEventListener('input', (e) => filterOptions(e.target.value));
-        filterOptions('');
+
+            cdStatus.innerHTML = activeCDsInfo.join('');
+            campCounter.innerHTML = `目前剩餘：<b>${availableCamps.length} / ${CAMPS.length}</b> 個營地可登記`;
+            
+            const currentVal = campSelect.value;
+            campSelect.innerHTML = '<option value="" disabled selected>選擇收容地點...</option>';
+            availableCamps.forEach(camp => {
+                const opt = document.createElement('option');
+                opt.value = camp; opt.textContent = camp;
+                campSelect.appendChild(opt);
+            });
+            if (availableCamps.includes(currentVal)) campSelect.value = currentVal;
+            
+            saveBtn.disabled = availableCamps.length === 0;
+            if (saveBtn.disabled) {
+                saveBtn.textContent = "今日已達上限 (明日08:00重置)";
+                saveBtn.style.background = "#4b5563";
+            } else {
+                saveBtn.textContent = "➕ 保存本次收容紀錄";
+                saveBtn.style.background = "var(--accent-color)";
+            }
+        };
+        refresh();
+        cdInterval = setInterval(refresh, 1000);
     }
 
-    function getNextResetTime(baseTime) {
-        let resetTime = new Date(baseTime);
-        resetTime.setHours(8, 0, 0, 0);
-        if (baseTime >= resetTime) resetTime.setDate(resetTime.getDate() + 1);
-        return resetTime;
+    function resetList() {
+        if(confirm("確定要重置所有紀錄嗎？")) { localStorage.clear(); location.reload(); }
     }
 
     function openTab(evt, tabName) {
@@ -518,156 +639,58 @@
         evt.currentTarget.classList.add("active");
     }
 
-    function updateCampSelect() {
-        const campSelect = document.getElementById('input-location');
-        const saveBtn = document.getElementById('save-btn');
-        const cdStatus = document.getElementById('cd-status');
-        const campCounter = document.getElementById('camp-counter');
-        
-        if (cdInterval) clearInterval(cdInterval);
-        
-        const refresh = () => {
-            const cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
-            const now = new Date();
-            let activeCDsInfo = [];
-            let availableCamps = [];
-            
-            CAMPS.forEach(camp => {
-                const normCamp = normalizeCampName(camp);
-                let ts = null;
-                Object.keys(cdTimestamps).forEach(key => {
-                    if (normalizeCampName(key) === normCamp) ts = cdTimestamps[key];
-                });
-                
-                let isEffectiveCD = false;
-                if (ts) {
-                    const resetTime = getNextResetTime(new Date(ts));
-                    const diff = resetTime - now;
-                    if (diff > 0) {
-                        isEffectiveCD = true;
-                        const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-                        activeCDsInfo.push(`<span>⏳ ${camp} (${h}h ${m}m ${s}s)</span>`);
-                    }
-                }
-                if (!isEffectiveCD) availableCamps.push(camp);
+    function initDevSelect() {
+        const searchInput = document.getElementById('dev-search');
+        const select = document.getElementById('dev-select');
+        const filterOptions = (term) => {
+            select.innerHTML = '';
+            allNames.filter(n => n.includes(term)).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name; opt.textContent = name;
+                select.appendChild(opt);
             });
-
-            cdStatus.innerHTML = activeCDsInfo.join('');
-            campCounter.innerHTML = `目前剩餘：<b>${availableCamps.length} / ${CAMPS.length}</b> 個營地可登記`;
-
-            const currentVal = campSelect.value;
-            const currentOptions = Array.from(campSelect.options).map(o => o.value).filter(v => v !== "");
-            
-            if (JSON.stringify(currentOptions) !== JSON.stringify(availableCamps)) {
-                campSelect.innerHTML = '<option value="" disabled selected>選擇收容地點...</option>';
-                availableCamps.forEach(camp => {
-                    const opt = document.createElement('option');
-                    opt.value = camp; opt.textContent = camp;
-                    campSelect.appendChild(opt);
-                });
-                if (availableCamps.includes(currentVal)) campSelect.value = currentVal;
-            }
-
-            if (availableCamps.length === 0) {
-                saveBtn.disabled = true; saveBtn.textContent = "今日已達上限 (明日08:00重置)";
-                saveBtn.style.background = "#4b5563"; 
-            } else {
-                saveBtn.disabled = false; saveBtn.textContent = "➕ 保存本次收容紀錄";
-                saveBtn.style.background = "var(--accent-color)";
-            }
         };
-
-        refresh();
-        cdInterval = setInterval(refresh, 1000);
+        searchInput.addEventListener('input', (e) => filterOptions(e.target.value));
+        filterOptions('');
     }
 
-    function saveDevantLog() {
-        const devSelect = document.getElementById('dev-select');
-        const campSelect = document.getElementById('input-location');
-        if(!devSelect.value || !campSelect.value) { alert('資訊不完整！'); return; }
-        
-        const now = new Date();
-        const log = {
-            name: devSelect.value, quality: document.getElementById('input-quality').value,
-            type: document.getElementById('input-type').value, power: document.getElementById('input-power').value,
-            active: document.getElementById('input-active').value, loc: campSelect.value,
-            time: now.toLocaleString('zh-TW', {hour12:false})
-        };
-
-        let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
-        logs.unshift(log);
-        localStorage.setItem('camp-logs', JSON.stringify(logs));
-
-        let campData = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
-        campData[log.loc] = now.toISOString();
-        localStorage.setItem('camp-cd-timestamps', JSON.stringify(campData));
-
-        renderLogs();
-        updateCampSelect();
-        alert(`${log.loc} 登記成功！`);
+    function confirmIdentity() {
+        const nameField = document.getElementById('user-name-field');
+        const name = nameField.value.trim();
+        if (name) {
+            localStorage.setItem('terminal-username', name);
+            document.getElementById('name-input-area').style.display = 'none';
+            startBootSequence(name);
+        } else { alert("請輸入代號以同步系統。"); }
     }
 
-    function renderLogs() {
-        const container = document.getElementById('log-list');
-        const tableBody = document.getElementById('log-table-body');
-        const logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
-        tableBody.innerHTML = logs.map(l => `<tr><td style="color:var(--header-color); font-size:0.75rem;">${l.time.split(' ')[1]}</td><td style="font-weight:bold;">${l.name}</td><td style="color:var(--accent-color);">${l.loc}</td><td>${l.power}/${l.active}</td></tr>`).join('');
-        container.innerHTML = logs.map((l, index) => `
-            <div class="log-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-                    <span style="font-size:1.1rem; font-weight:bold; color:var(--accent-color);">${l.name}</span>
-                    <span style="font-size:0.75rem; color:var(--header-color);">${l.time}</span>
-                </div>
-                <div class="log-grid">
-                    <span class="log-tag">✨ ${l.quality}</span><span class="log-tag">⚔️ ${l.type}</span>
-                    <span class="log-tag">🔋 異能: ${l.power}</span><span class="log-tag">🌀 活力: ${l.active}</span>
-                    <span class="log-tag" style="grid-column: span 2;">📍 地點: ${l.loc}</span>
-                </div>
-                <div style="text-align:right; margin-top:10px;">
-                    <button onclick="deleteLog(${index})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem;">[ 移除此紀錄 ]</button>
-                </div>
-            </div>`).join('');
+    function clearIdentity() {
+        if(confirm("確定要清除記憶的名字嗎？")) { localStorage.removeItem('terminal-username'); location.reload(); }
     }
 
-    function deleteLog(index) {
-        if(!confirm("確定要刪除這條紀錄嗎？")) return;
-        let logs = JSON.parse(localStorage.getItem('camp-logs') || '[]');
-        const deletedLog = logs[index];
-        const deletedCamp = deletedLog.loc;
-
-        logs.splice(index, 1);
-        localStorage.setItem('camp-logs', JSON.stringify(logs));
-
-        const hasOtherLogForCamp = logs.some(log => normalizeCampName(log.loc) === normalizeCampName(deletedCamp));
-        if (!hasOtherLogForCamp) {
-            let cdTimestamps = JSON.parse(localStorage.getItem('camp-cd-timestamps') || '{}');
-            const targetKey = Object.keys(cdTimestamps).find(key => normalizeCampName(key) === normalizeCampName(deletedCamp));
-            if (targetKey) {
-                delete cdTimestamps[targetKey];
-                localStorage.setItem('camp-cd-timestamps', JSON.stringify(cdTimestamps));
-            }
-        }
-
-        renderLogs(); 
-        updateCampSelect();
+    function showWelcomeMessage() {
+        const storedName = localStorage.getItem('terminal-username');
+        if (storedName) { startBootSequence(storedName); }
+        else { document.getElementById('name-input-area').style.display = 'block'; }
     }
 
-    function resetList() {
-        if(confirm("確定重置所有核取方塊與重要週常 CD 嗎？")) {
-            localStorage.removeItem('weekly-cd-v2');
-            document.querySelectorAll('input[type="checkbox"]').forEach(box => box.checked = false);
-            currentRandomTask = getRandomTask();
-            updateWeeklyDisplay();
-        }
+    function startBootSequence(userName) {
+        const hours = new Date().getHours();
+        let greet = (hours >= 5 && hours < 11) ? "早安" : (hours >= 11 && hours < 17) ? "午安" : (hours >= 17 && hours < 22) ? "歡迎回來" : "深夜了";
+        document.getElementById('boot-greet').innerText = `${greet}，超越者 ${userName}`;
+        document.getElementById('boot-sub').innerHTML = `<span style="color: #00ff00; animation: blink 1s infinite;">●</span> 系統同步完成，祝您今天獵殺愉快。`;
+        const bannerMini = document.getElementById('status-banner-mini');
+        if (bannerMini) bannerMini.innerHTML = `<div class="welcome-title">${greet}，超越者 ${userName}</div><div class="welcome-sub">系統連線穩定</div>`;
+        updateWeeklyDisplay();
+        renderDeviantGallery();
+        setTimeout(() => {
+            document.getElementById('boot-loader').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('boot-loader').style.display = 'none';
+                document.querySelector('.container').classList.add('show');
+            }, 1000);
+        }, 2000);
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        showWelcomeMessage();
-        initDevSelect();
-        renderLogs();
-        updateCampSelect();
-        weeklyInterval = setInterval(updateWeeklyDisplay, 1000);
-    });
 </script>
 </body>
 </html>
